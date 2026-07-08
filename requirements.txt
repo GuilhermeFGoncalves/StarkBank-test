@@ -1,0 +1,4 @@
+Django==4.2.11
+starkbank==2.19.0
+celery==5.6.3
+redis==8.0.1

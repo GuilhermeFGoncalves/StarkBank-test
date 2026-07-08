@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,11 @@ SECRET_KEY = 'django-insecure-dw10z_mm1!(g&h-36nmz(a1=j@lq6bry%lex!7q+r6(#v5&8-s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 
 # Application definition
@@ -37,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'broker'
 ]
 
 MIDDLEWARE = [
@@ -121,3 +127,28 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Stark Bank credentials
+# https://web.sandbox.starkbank.com -> create a Project to get id and private key
+
+STARKBANK_ENVIRONMENT = os.environ.get('STARKBANK_ENVIRONMENT', 'sandbox')
+STARKBANK_PROJECT_ID = os.environ.get('STARKBANK_PROJECT_ID', '')
+STARKBANK_PRIVATE_KEY = os.environ.get('STARKBANK_PRIVATE_KEY', '').replace('\\n', '\n')
+
+# Target account that receives the net transfer once an invoice is credited
+STARKBANK_RECEIVER_BANK_CODE = os.environ.get('STARKBANK_RECEIVER_BANK_CODE', '20018183')
+STARKBANK_RECEIVER_BRANCH_CODE = os.environ.get('STARKBANK_RECEIVER_BRANCH_CODE', '0001')
+STARKBANK_RECEIVER_ACCOUNT_NUMBER = os.environ.get('STARKBANK_RECEIVER_ACCOUNT_NUMBER', '6341320293482496')
+STARKBANK_RECEIVER_ACCOUNT_TYPE = os.environ.get('STARKBANK_RECEIVER_ACCOUNT_TYPE', 'payment')
+STARKBANK_RECEIVER_TAX_ID = os.environ.get('STARKBANK_RECEIVER_TAX_ID', '20.018.183/0001-80')
+STARKBANK_RECEIVER_NAME = os.environ.get('STARKBANK_RECEIVER_NAME', 'Stark Bank S.A.')
+
+
+# Celery
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
